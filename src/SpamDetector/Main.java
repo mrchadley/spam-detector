@@ -30,6 +30,9 @@ public class Main extends Application
 
     LinkedList<TestFile> testFiles = new LinkedList<>();
 
+    double accuracy;
+    double precision;
+
     private BorderPane layout;
     private TableView table = new TableView();
 
@@ -78,6 +81,31 @@ public class Main extends Application
 
         //test here
         testFiles = TestProbability();
+
+        int correctGuesses = 0;
+        int correctSpam = 0;
+        int spamGuesses = 0;
+        for(TestFile testFile : testFiles)
+        {
+            //check spam correctness
+            if(testFile.getActualClass() == "spam" && testFile.getSpamProbability() >= 0.5)
+            {
+                correctGuesses++;
+                correctSpam++;
+            }
+            //check ham correctness
+            else if(testFile.getActualClass() == "ham" && testFile.getSpamProbability() < 0.5)
+            {
+                correctGuesses++;
+            }
+            //check spam guesses
+            if(testFile.getSpamProbability() >= 0.5)
+            {
+                spamGuesses++;
+            }
+        }
+        accuracy = (double)correctGuesses / (double)testFiles.size();
+        precision = (double)correctSpam / (double)spamGuesses;
     }
 
 
