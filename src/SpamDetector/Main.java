@@ -1,6 +1,9 @@
 package SpamDetector;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -57,6 +60,7 @@ public class Main extends Application
         spamProbCol.setMinWidth(250);
 
         table.getColumns().addAll(fileCol, actualClassCol, spamProbCol);
+        table.getItems().add("test");
 
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
