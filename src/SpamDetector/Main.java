@@ -1,6 +1,10 @@
 package SpamDetector;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -14,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,66 +35,15 @@ public class Main extends Application
     Map<String, Double> probabilityMap = new TreeMap<>();
 
     LinkedList<TestFile> testFiles = new LinkedList<>();
-
     double accuracy;
     double precision;
 
     private BorderPane layout;
-    private TableView table = new TableView();
+    private TableView<TestFile> table = new TableView<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Spam Detector");
-
-
-        final Label label = new Label("Address Book");
-        label.setFont(new Font("Arial", 25));
-
-        table.setEditable(false);
-
-        TableColumn fileCol = new TableColumn("File");
-        fileCol.setMinWidth(280);
-
-        TableColumn actualClassCol = new TableColumn("Actual Class");
-        actualClassCol.setMinWidth(110);
-
-        TableColumn spamProbCol = new TableColumn("Spam Probability");
-        spamProbCol.setMinWidth(250);
-
-        table.getColumns().addAll(fileCol, actualClassCol, spamProbCol);
-
-        final VBox vbox = new VBox();
-        vbox.setSpacing(5);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table);
-
-        GridPane editArea = new GridPane();
-        editArea.setPadding(new Insets(10, 10, 10, 10));
-        editArea.setVgap(10);
-        editArea.setHgap(10);
-
-        Label accuracyLabel = new Label("Accuracy:");
-        editArea.add(accuracyLabel, 0, 0);
-        TextField accuracyField = new TextField();
-        accuracyField.setPromptText("");
-        editArea.add(accuracyField, 1, 0);
-        accuracyField.setEditable(false);
-
-        Label precisionLabel = new Label("Precision:");
-        editArea.add(precisionLabel, 0, 1);
-        TextField precisionField = new TextField();
-        precisionField.setPromptText("");
-        editArea.add(precisionField, 1, 1);
-        precisionField.setEditable(false);
-
-
-        layout = new BorderPane();
-        layout.setTop(table);
-        layout.setBottom(editArea);
-
-        Scene scene = new Scene(layout, 640, 480);
-        primaryStage.setScene(scene);
-        primaryStage.show();
 
         //choose data directory
         directoryChooser.setTitle("Choose data Directory");
@@ -128,6 +82,64 @@ public class Main extends Application
         }
         accuracy = (double)correctGuesses / (double)testFiles.size();
         precision = (double)correctSpam / (double)spamGuesses;
+
+
+        final Label label = new Label("Address Book");
+        label.setFont(new Font("Arial", 25));
+
+        table.setEditable(false);
+        table.getItems().addAll(testFiles);
+
+        TableColumn<TestFile, String> fileCol = new TableColumn<>("File");
+        fileCol.setMinWidth(280);
+        fileCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFilename()));
+
+        TableColumn<TestFile, String> actualClassCol = new TableColumn<>("Actual Class");
+        actualClassCol.setMinWidth(110);
+        actualClassCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getActualClass()));
+
+        TableColumn<TestFile, String> spamProbCol = new TableColumn<>("Spam Probability");
+        spamProbCol.setMinWidth(250);
+        spamProbCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getSpamProbRounded()));
+
+
+
+        table.getColumns().addAll(fileCol, actualClassCol, spamProbCol);
+
+        final VBox vbox = new VBox();
+        vbox.setSpacing(5);
+        vbox.setPadding(new Insets(10, 0, 0, 10));
+        vbox.getChildren().addAll(label, table);
+
+        GridPane editArea = new GridPane();
+        editArea.setPadding(new Insets(10, 10, 10, 10));
+        editArea.setVgap(10);
+        editArea.setHgap(10);
+
+        Label accuracyLabel = new Label("Accuracy:");
+        editArea.add(accuracyLabel, 0, 0);
+        TextField accuracyField = new TextField();
+        accuracyField.setPromptText("");
+        editArea.add(accuracyField, 1, 0);
+        accuracyField.setEditable(false);
+
+        Label precisionLabel = new Label("Precision:");
+        editArea.add(precisionLabel, 0, 1);
+        TextField precisionField = new TextField();
+        precisionField.setPromptText("");
+        editArea.add(precisionField, 1, 1);
+        precisionField.setEditable(false);
+
+
+        layout = new BorderPane();
+        layout.setTop(table);
+        layout.setBottom(editArea);
+
+        Scene scene = new Scene(layout, 640, 480);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+
     }
 
 

@@ -2,8 +2,7 @@ package SpamDetector;
 
 import java.text.DecimalFormat;
 
-public class TestFile
-{
+public class TestFile {
 
     private String filename;
     private double spamProbability;
