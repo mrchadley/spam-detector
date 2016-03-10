@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
@@ -46,24 +47,45 @@ public class Main extends Application
 
         table.setEditable(false);
 
-        TableColumn col1 = new TableColumn("File");
-        col1.setMinWidth(280);
+        TableColumn fileCol = new TableColumn("File");
+        fileCol.setMinWidth(280);
 
-        TableColumn col2 = new TableColumn("Actual Class");
-        col2.setMinWidth(110);
+        TableColumn actualClassCol = new TableColumn("Actual Class");
+        actualClassCol.setMinWidth(110);
 
-        TableColumn col3 = new TableColumn("Spam Probability");
-        col3.setMinWidth(250);
+        TableColumn spamProbCol = new TableColumn("Spam Probability");
+        spamProbCol.setMinWidth(250);
 
-        table.getColumns().addAll(col1, col2, col3);
+        table.getColumns().addAll(fileCol, actualClassCol, spamProbCol);
 
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
         vbox.getChildren().addAll(label, table);
 
+        GridPane editArea = new GridPane();
+        editArea.setPadding(new Insets(10, 10, 10, 10));
+        editArea.setVgap(10);
+        editArea.setHgap(10);
+
+        Label accuracyLabel = new Label("Accuracy:");
+        editArea.add(accuracyLabel, 0, 0);
+        TextField accuracyField = new TextField();
+        accuracyField.setPromptText("");
+        editArea.add(accuracyField, 1, 0);
+        accuracyField.setEditable(false);
+
+        Label precisionLabel = new Label("Precision:");
+        editArea.add(precisionLabel, 0, 1);
+        TextField precisionField = new TextField();
+        precisionField.setPromptText("");
+        editArea.add(precisionField, 1, 1);
+        precisionField.setEditable(false);
+
+
         layout = new BorderPane();
         layout.setTop(table);
+        layout.setBottom(editArea);
 
         Scene scene = new Scene(layout, 640, 480);
         primaryStage.setScene(scene);
