@@ -4,6 +4,12 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -21,12 +27,16 @@ public class Main extends Application
     Map<String, Integer> spamMap = new TreeMap<>();
     Map<String, Double> probabilityMap = new TreeMap<>();
 
+    private BorderPane layout;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("Spam Detector");
-        primaryStage.setScene(new Scene(root, 640, 480));
+
+
+        layout = new BorderPane();
+        Scene scene = new Scene(layout, 640, 480);
+        primaryStage.setScene(scene);
         primaryStage.show();
 
         //choose data directory
