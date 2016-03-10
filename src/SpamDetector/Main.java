@@ -36,7 +36,7 @@ public class Main extends Application
 
 
         //train here
-        train();
+        Train();
 
 
 
@@ -51,7 +51,7 @@ public class Main extends Application
         launch(args);
     }
 
-    public void train() throws IOException {
+    void Train() throws IOException {
         CountWords(new File(dataDirectory + "/train/ham"), hamMap);
         CountWords(new File(dataDirectory + "/train/spam"), spamMap);
 
@@ -67,22 +67,29 @@ public class Main extends Application
                 LinkedList<String> words = new LinkedList<>(); //holds a string if it shows up in the file
                 Scanner scanner = new Scanner(file);
                 while (scanner.hasNext()) {
-                    String word = scanner.next();
-                    if (!words.contains(word)) {
-                        words.add(word);
+                    String string = scanner.next();
+                    if (Filter(string) && !words.contains(string)) {
+                        words.add(string);
                     }
                 }
                 //adds strings from words list to the map so that it only adds increases
                 //the count if it shows up in the file, not for each time it shows in a file
-                for (String string : words) {
-                    if (map.containsKey(string)) {
-                        map.put(string, map.get(string) + 1);
+                for (String str: words) {
+                    if (map.containsKey(str)) {
+                        map.put(str, map.get(str) + 1);
                     } else {
-                        map.put(string, 1);
+                        map.put(str, 1);
                     }
                 }
             }
         }catch(IOException e){
         }
+    }
+    boolean Filter(String string)
+    {
+        String pattern = "^[a-zA-Z]*$";
+        if(string.matches(pattern))
+            return true;
+        return false;
     }
 }
