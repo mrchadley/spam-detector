@@ -19,6 +19,7 @@ public class Main extends Application
 
     Map<String, Integer> hamMap = new TreeMap<>();
     Map<String, Integer> spamMap = new TreeMap<>();
+    Map<String, Double> probabilityMap = new TreeMap<>();
 
 
     @Override
@@ -54,6 +55,8 @@ public class Main extends Application
     void Train() throws IOException {
         CountWords(new File(dataDirectory + "/train/ham"), hamMap);
         CountWords(new File(dataDirectory + "/train/spam"), spamMap);
+
+        CalculateSpamProbability();
 
         System.out.println(hamMap);
         System.out.println(spamMap);
@@ -91,5 +94,24 @@ public class Main extends Application
         if(string.matches(pattern))
             return true;
         return false;
+    }
+
+    void CalculateSpamProbability()
+    {
+        for(String word : spamMap.keySet())
+        {
+
+            //wordinspam = spamMap.get(word)
+            //wordinham = hamMap.get(word)
+            //spamfiles = spamMap.size()
+            //hamfiles = hamMap.size()
+            // (wordinspam/spamfiles)/((wordinspam/spamfiles)+(wordinham/hamfiles))
+
+            double probInSpam = (double)spamMap.get(word) / (double)spamMap.size();
+            double probInHam = (double)hamMap.get(word) / (double)hamMap.size();
+            double probability = probInSpam / (probInSpam + probInHam);
+
+            probabilityMap.put(word, probability);
+        }
     }
 }
