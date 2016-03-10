@@ -2,14 +2,15 @@ package SpamDetector;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -30,13 +31,37 @@ public class Main extends Application
     LinkedList<TestFile> testFiles = new LinkedList<>();
 
     private BorderPane layout;
+    private TableView table = new TableView();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Spam Detector");
 
 
+        final Label label = new Label("Address Book");
+        label.setFont(new Font("Arial", 25));
+
+        table.setEditable(false);
+
+        TableColumn col1 = new TableColumn("File");
+        col1.setMinWidth(280);
+
+        TableColumn col2 = new TableColumn("Actual Class");
+        col2.setMinWidth(110);
+
+        TableColumn col3 = new TableColumn("Spam Probability");
+        col3.setMinWidth(250);
+
+        table.getColumns().addAll(col1, col2, col3);
+
+        final VBox vbox = new VBox();
+        vbox.setSpacing(5);
+        vbox.setPadding(new Insets(10, 0, 0, 10));
+        vbox.getChildren().addAll(label, table);
+
         layout = new BorderPane();
+        layout.setTop(table);
+
         Scene scene = new Scene(layout, 640, 480);
         primaryStage.setScene(scene);
         primaryStage.show();
