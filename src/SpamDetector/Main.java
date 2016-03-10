@@ -27,6 +27,8 @@ public class Main extends Application
     Map<String, Integer> spamMap = new TreeMap<>();
     Map<String, Double> probabilityMap = new TreeMap<>();
 
+    LinkedList<TestFile> testFiles = new LinkedList<>();
+
     private BorderPane layout;
 
     @Override
@@ -49,12 +51,8 @@ public class Main extends Application
         //train here
         Train();
 
-
-
-
-
         //test here
-
+        testFiles = TestProbability();
     }
 
 
@@ -115,7 +113,7 @@ public class Main extends Application
             //hamfiles = hamMap.size()
             //probability = (wordinspam/spamfiles)/((wordinspam/spamfiles)+(wordinham/hamfiles))
 
-            System.out.println(word);
+
             double probInSpam = (double)spamMap.get(word) / (double)spamMap.size();
             double probInHam = 0.0;
             if(hamMap.containsKey(word))
