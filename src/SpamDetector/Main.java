@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+
+
 public class Main extends Application
 {
     DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -38,17 +40,15 @@ public class Main extends Application
     double precision;
 
     private BorderPane layout;
-    private TableView table = new TableView();
+    private TableView<TestFile> table;
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         primaryStage.setTitle("Spam Detector");
 
 
-        final Label label = new Label("Address Book");
-        label.setFont(new Font("Arial", 25));
-
-        table.setEditable(false);
 
         TableColumn fileCol = new TableColumn("File");
         fileCol.setMinWidth(280);
@@ -59,13 +59,16 @@ public class Main extends Application
         TableColumn spamProbCol = new TableColumn("Spam Probability");
         spamProbCol.setMinWidth(250);
 
+
+        table = new TableView<>();
+        table.setItems(DataSource.getAllData());
+        table.setEditable(false);
         table.getColumns().addAll(fileCol, actualClassCol, spamProbCol);
-        table.getItems().add("test");
+
 
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table);
 
         GridPane editArea = new GridPane();
         editArea.setPadding(new Insets(10, 10, 10, 10));
