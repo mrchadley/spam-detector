@@ -56,16 +56,15 @@ public class Main extends Application
         CountWords(new File(dataDirectory + "/train/ham"), hamMap);
         CountWords(new File(dataDirectory + "/train/spam"), spamMap);
 
-        CalculateSpamProbability();
+        CalculateProbabilityMap();
 
         System.out.println(hamMap);
         System.out.println(spamMap);
+        System.out.println(probabilityMap);
     }
     void CountWords(File dir, Map<String, Integer> map) throws IOException
     {
         try {
-
-
             for (File file : dir.listFiles()) {
                 LinkedList<String> words = new LinkedList<>(); //holds a string if it shows up in the file
                 Scanner scanner = new Scanner(file);
@@ -96,22 +95,55 @@ public class Main extends Application
         return false;
     }
 
-    void CalculateSpamProbability()
+    void CalculateProbabilityMap()
     {
         for(String word : spamMap.keySet())
         {
-
             //wordinspam = spamMap.get(word)
             //wordinham = hamMap.get(word)
             //spamfiles = spamMap.size()
             //hamfiles = hamMap.size()
-            // (wordinspam/spamfiles)/((wordinspam/spamfiles)+(wordinham/hamfiles))
+            //probability = (wordinspam/spamfiles)/((wordinspam/spamfiles)+(wordinham/hamfiles))
 
+            System.out.println(word);
             double probInSpam = (double)spamMap.get(word) / (double)spamMap.size();
-            double probInHam = (double)hamMap.get(word) / (double)hamMap.size();
+            double probInHam = 0.0;
+            if(hamMap.containsKey(word))
+                probInHam = (double)hamMap.get(word) / (double)hamMap.size();
             double probability = probInSpam / (probInSpam + probInHam);
 
             probabilityMap.put(word, probability);
         }
+    }
+
+    LinkedList<TestFile> TestProbability() throws IOException
+    {
+        LinkedList<TestFile> testFiles = new LinkedList<>();
+        File testDir = new File(dataDirectory + "/test");
+        if (testDir.exists()) {
+            for (File dir : testDir.listFiles()) {
+                if (dir.isDirectory()) {
+                    for (File file : dir.listFiles()) {
+                        Scanner scanner = new Scanner(file);
+                        LinkedList<String> words = new LinkedList<>();
+
+                        if (scanner.hasNext()) {
+                            String word = scanner.next();
+                            if (probabilityMap.containsKey(word) && !words.contains(word)) {
+                                words.add(word);
+                            }
+                        }
+                        double n = 0;
+                        for (String word : words) {
+                            n += Math.log(1 - probabilityMap.get(word) - Math.log(probabilityMap.get(word)));
+                        }
+                        double probability = 1 / (1 + Math.pow(Math.E, n));
+
+                        testFiles.add(new TestFile(file.getName(), probability, dir.getName()));
+                    }
+                }
+            }
+        }
+        return testFiles;
     }
 }
