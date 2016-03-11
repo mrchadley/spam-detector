@@ -30,8 +30,8 @@ public class Main extends Application
     String spamClassName = "";
 
     LinkedList<TestFile> testFiles = new LinkedList<>();
-    double accuracy;
-    double precision;
+    double accuracy = 0.0;
+    double precision = 0.0;
     DecimalFormat df = new DecimalFormat("0.00000");
 
     private BorderPane layout;
@@ -54,15 +54,16 @@ public class Main extends Application
         //test here
         testFiles = TestProbability();
 
-        int correctGuesses = 0;
-        int correctSpam = 0;
-        int spamGuesses = 0;
+        double correctGuesses = 0.0;
+        double correctSpam = 0.0;
+        double spamGuesses = 0.0;
         for(TestFile testFile : testFiles)
         {
+            String ya;
             System.out.println(testFile.getActualClass());
 
             //check spam correctness
-            if(testFile.getActualClass() == "spam")
+            if(testFile.getActualClass().intern() == "spam")
             {
                 if (testFile.getSpamProbability() >= 0.5)
                 {
@@ -70,7 +71,7 @@ public class Main extends Application
                     correctSpam++;
                 }
             }
-            else if(testFile.getActualClass() == "ham")
+            else if(testFile.getActualClass().intern() == "ham")
             {
                 //check ham correctness
                 if(testFile.getSpamProbability() < 0.5)
@@ -83,7 +84,7 @@ public class Main extends Application
 
 
         }
-        accuracy = (double)correctGuesses / (double)testFiles.size();
+        accuracy = (double)correctGuesses / ((double)correctGuesses + (double)spamGuesses);
         precision = (double)correctSpam / (double)spamGuesses;
 
         System.out.println("accuracy: " + accuracy + ", precision: " + precision);
