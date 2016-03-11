@@ -2,26 +2,19 @@ package SpamDetector;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class Main extends Application
@@ -34,9 +27,12 @@ public class Main extends Application
     Map<String, Integer> spamMap = new TreeMap<>();
     Map<String, Double> probabilityMap = new TreeMap<>();
 
+    String spamClassName = "";
+
     LinkedList<TestFile> testFiles = new LinkedList<>();
     double accuracy;
     double precision;
+    DecimalFormat df = new DecimalFormat("0.00000");
 
     private BorderPane layout;
     private TableView<TestFile> table = new TableView<>();
@@ -63,25 +59,34 @@ public class Main extends Application
         int spamGuesses = 0;
         for(TestFile testFile : testFiles)
         {
+            System.out.println(testFile.getActualClass());
+
             //check spam correctness
-            if(testFile.getActualClass() == "spam" && testFile.getSpamProbability() >= 0.5)
+            if(testFile.getActualClass() == "spam")
             {
-                correctGuesses++;
-                correctSpam++;
+                if (testFile.getSpamProbability() >= 0.5)
+                {
+                    correctGuesses++;
+                    correctSpam++;
+                }
             }
-            //check ham correctness
-            else if(testFile.getActualClass() == "ham" && testFile.getSpamProbability() < 0.5)
+            else if(testFile.getActualClass() == "ham")
             {
-                correctGuesses++;
+                //check ham correctness
+                if(testFile.getSpamProbability() < 0.5)
+                    correctGuesses++;
             }
-            //check spam guesses
-            if(testFile.getSpamProbability() >= 0.5)
-            {
+                //check spam guesses
+            if (testFile.getSpamProbability() >= 0.5) {
                 spamGuesses++;
             }
+
+
         }
         accuracy = (double)correctGuesses / (double)testFiles.size();
         precision = (double)correctSpam / (double)spamGuesses;
+
+        System.out.println("accuracy: " + accuracy + ", precision: " + precision);
 
 
         final Label label = new Label("Address Book");
@@ -119,14 +124,14 @@ public class Main extends Application
         Label accuracyLabel = new Label("Accuracy:");
         editArea.add(accuracyLabel, 0, 0);
         TextField accuracyField = new TextField();
-        accuracyField.setPromptText("");
+        accuracyField.setPromptText(df.format(accuracy));
         editArea.add(accuracyField, 1, 0);
         accuracyField.setEditable(false);
 
         Label precisionLabel = new Label("Precision:");
         editArea.add(precisionLabel, 0, 1);
         TextField precisionField = new TextField();
-        precisionField.setPromptText("");
+        precisionField.setPromptText(df.format(precision));
         editArea.add(precisionField, 1, 1);
         precisionField.setEditable(false);
 
@@ -150,6 +155,8 @@ public class Main extends Application
     void Train() throws IOException {
         CountWords(new File(dataDirectory + "/train/ham"), hamMap);
         CountWords(new File(dataDirectory + "/train/spam"), spamMap);
+
+        spamClassName = new File(dataDirectory + "/train/spam").getName();
 
         CalculateProbabilityMap();
 
@@ -213,9 +220,39 @@ public class Main extends Application
 
     LinkedList<TestFile> TestProbability() throws IOException
     {
+        LinkedList<File> files = new LinkedList<>();
         LinkedList<TestFile> testFiles = new LinkedList<>();
         File testDir = new File(dataDirectory + "/test");
-        if (testDir.exists()) {
+        if (testDir.exists())
+        {
+            files = AddToList(testDir, files);
+
+            for(File file : files)
+            {
+
+
+
+                LinkedList<String> words = new LinkedList<>();
+
+                Scanner scan = new Scanner(file);
+                while(scan.hasNext())
+                {
+                    String word = scan.next();
+
+                    if(probabilityMap.containsKey(word) && !words.contains(word))
+                    {
+                        words.add(word);
+                        //System.out.println(word);
+                    }
+                }
+
+                TestFile test = new TestFile(file.getName(), CalcProbability(words), file.getParentFile().getName());
+                testFiles.add(test);
+                //System.out.println(test.getFilename() + ", " + test.getActualClass() + ", " + test.getSpamProbRounded());
+            }
+
+            /*
+
             for (File dir : testDir.listFiles()) {
                 if (dir.isDirectory()) {
                     for (File file : dir.listFiles()) {
@@ -224,6 +261,7 @@ public class Main extends Application
 
                         if (scanner.hasNext()) {
                             String word = scanner.next();
+                            System.out.println(word);
                             if (probabilityMap.containsKey(word) && !words.contains(word)) {
                                 words.add(word);
                             }
@@ -231,14 +269,42 @@ public class Main extends Application
                         double n = 0;
                         for (String word : words) {
                             n += Math.log(1 - probabilityMap.get(word) - Math.log(probabilityMap.get(word)));
+                            //System.out.println(word + ": " + n);
                         }
                         double probability = 1 / (1 + Math.pow(Math.E, n));
 
                         testFiles.add(new TestFile(file.getName(), probability, dir.getName()));
                     }
                 }
+            }*/
+        }
+
+        return testFiles;
+    }
+    LinkedList<File> AddToList(File fileName, LinkedList<File> testFiles)
+    {
+        if(fileName.isDirectory())
+        {
+            for (File file : fileName.listFiles())
+            {
+                AddToList(file, testFiles);
             }
         }
+        else
+        {
+            testFiles.add(fileName);
+        }
         return testFiles;
+    }
+
+    double CalcProbability(LinkedList<String> words)
+    {
+        double n = 0;
+        for(String word : words)
+        {
+            n = Math.log(1 - probabilityMap.get(word) - Math.log(probabilityMap.get(word)));
+        }
+        double pr = 1.0/(1.0 + Math.pow(Math.E, n));
+        return pr;
     }
 }
