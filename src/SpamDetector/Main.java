@@ -19,21 +19,25 @@ import java.util.*;
 
 public class Main extends Application
 {
+    //Initializing file manager
     DirectoryChooser directoryChooser = new DirectoryChooser();
 
     File dataDirectory;
 
+    //Initializing maps
     Map<String, Integer> hamMap = new TreeMap<>();
     Map<String, Integer> spamMap = new TreeMap<>();
     Map<String, Double> probabilityMap = new TreeMap<>();
 
     String spamClassName = "";
 
+    //setting up test file data and other variables
     LinkedList<TestFile> testFiles = new LinkedList<>();
     double accuracy = 0.0;
     double precision = 0.0;
     DecimalFormat df = new DecimalFormat("0.00000");
 
+    //creating tableview
     private BorderPane layout;
     private TableView<TestFile> table = new TableView<>();
 
@@ -53,7 +57,7 @@ public class Main extends Application
 
         //test here
         testFiles = TestProbability();
-
+        //variables for accuracy and precision + logic
         double correctGuesses = 0.0;
         double correctSpam = 0.0;
         double spamGuesses = 0.0;
@@ -89,10 +93,7 @@ public class Main extends Application
 
         System.out.println("accuracy: " + accuracy + ", precision: " + precision);
 
-
-        final Label label = new Label("Address Book");
-        label.setFont(new Font("Arial", 25));
-
+        //configuring table layout. adding columns.
         table.setEditable(false);
         table.getItems().addAll(testFiles);
 
@@ -108,20 +109,18 @@ public class Main extends Application
         spamProbCol.setMinWidth(250);
         spamProbCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getSpamProbRounded()));
 
-
-
         table.getColumns().addAll(fileCol, actualClassCol, spamProbCol);
 
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table);
 
         GridPane editArea = new GridPane();
         editArea.setPadding(new Insets(10, 10, 10, 10));
         editArea.setVgap(10);
         editArea.setHgap(10);
 
+        //bottom pane stuff
         Label accuracyLabel = new Label("Accuracy:");
         editArea.add(accuracyLabel, 0, 0);
         TextField accuracyField = new TextField();
@@ -152,7 +151,7 @@ public class Main extends Application
     public static void main(String[] args) {
         launch(args);
     }
-
+    //counting words from data
     void Train() throws IOException {
         CountWords(new File(dataDirectory + "/train/ham"), hamMap);
         CountWords(new File(dataDirectory + "/train/spam"), spamMap);
@@ -197,7 +196,7 @@ public class Main extends Application
             return true;
         return false;
     }
-
+    //probability calculations below
     void CalculateProbabilityMap()
     {
         for(String word : spamMap.keySet())

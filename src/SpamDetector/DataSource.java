@@ -5,9 +5,7 @@ import javafx.collections.ObservableList;
 
 import java.util.LinkedList;
 
-/**
- * Created by austin on 10/03/16.
- */
+//getting all data from test files for use
 public class DataSource {
 
 
